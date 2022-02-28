@@ -22,7 +22,7 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 from torchvision.transforms.functional import InterpolationMode as IMode
 
-from .imgproc import *
+import imgproc
 
 __all__ = ["ImageDataset", "LMDBDataset"]
 
@@ -63,8 +63,8 @@ class ImageDataset(Dataset):
 
         # Convert image data into Tensor stream format (PyTorch).
         # Note: The range of input and output is between [0, 1]
-        lr_tensor = image2tensor(lr_image, range_norm=False, half=False)
-        hr_tensor = image2tensor(hr_image, range_norm=False, half=False)
+        lr_tensor = imgproc.image2tensor(lr_image, range_norm=False, half=False)
+        hr_tensor = imgproc.image2tensor(hr_image, range_norm=False, half=False)
 
         return lr_tensor, hr_tensor
 
@@ -99,13 +99,13 @@ class LMDBDataset(Dataset):
         hr_image = self.hr_datasets[batch_index]
 
         # Data augment
-        lr_image, hr_image = random_rotate(lr_image, hr_image, angle=90)
-        lr_image, hr_image = random_horizontally_flip(lr_image, hr_image, p=0.5)
+        lr_image, hr_image = imgproc.random_rotate(lr_image, hr_image, angle=90)
+        lr_image, hr_image = imgproc.random_horizontally_flip(lr_image, hr_image, p=0.5)
 
         # Convert image data into Tensor stream format (PyTorch).
         # Note: The range of input and output is between [0, 1]
-        lr_tensor = image2tensor(lr_image, range_norm=False, half=False)
-        hr_tensor = image2tensor(hr_image, range_norm=False, half=False)
+        lr_tensor = imgproc.image2tensor(lr_image, range_norm=False, half=False)
+        hr_tensor = imgproc.image2tensor(hr_image, range_norm=False, half=False)
 
         return lr_tensor, hr_tensor
 

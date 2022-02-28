@@ -22,9 +22,9 @@ from torch.cuda import amp
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from .config import *
-from .dataset import ImageDataset
-from .model import Generator
+import config
+from dataset import ImageDataset
+from model import Generator
 
 
 def main():
@@ -49,15 +49,15 @@ def main():
     print("Check whether the training weight is restored successfully.")
 
     # Create a folder of super-resolution experiment results
-    samples_dir = os.path.join("samples", exp_name)
-    results_dir = os.path.join("results", exp_name)
+    samples_dir = os.path.join("samples", config.exp_name)
+    results_dir = os.path.join("results", config.exp_name)
     if not os.path.exists(samples_dir):
         os.makedirs(samples_dir)
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
 
     # Create training process log file
-    writer = SummaryWriter(os.path.join("samples", "logs", exp_name))
+    writer = SummaryWriter(os.path.join("samples", "logs", config.exp_name))
 
     # Initialize the gradient scaler
     scaler = amp.GradScaler()
@@ -66,7 +66,7 @@ def main():
     best_psnr = 0.0
 
     print("Start train SRResNet model.")
-    for epoch in range(start_epoch, epochs):
+    for epoch in range(config.start_epoch, config.epochs):
         train(model, train_dataloader, psnr_criterion, pixel_criterion, optimizer, epoch, scaler, writer)
 
         psnr = validate(model, valid_dataloader, psnr_criterion, epoch, writer)
@@ -83,53 +83,53 @@ def main():
 
 
 def load_dataset() -> [DataLoader, DataLoader]:
-    train_datasets = ImageDataset(train_image_dir, image_size, upscale_factor, "train")
-    valid_datasets = ImageDataset(valid_image_dir, image_size, upscale_factor, "valid")
+    train_datasets = ImageDataset(config.train_image_dir, config.image_size, config.upscale_factor, "train")
+    valid_datasets = ImageDataset(config.valid_image_dir, config.image_size, config.upscale_factor, "valid")
     # Make it into a data set type supported by PyTorch
     train_dataloader = DataLoader(train_datasets,
-                                  batch_size=batch_size,
+                                  batch_size=config.batch_size,
                                   shuffle=True,
-                                  num_workers=num_workers,
+                                  num_workers=config.num_workers,
                                   pin_memory=True)
     valid_dataloader = DataLoader(valid_datasets,
-                                  batch_size=batch_size,
+                                  batch_size=config.batch_size,
                                   shuffle=False,
-                                  num_workers=num_workers,
+                                  num_workers=config.num_workers,
                                   pin_memory=True)
 
     return train_dataloader, valid_dataloader
 
 
 def build_model() -> nn.Module:
-    model = Generator().to(device)
+    model = Generator().to(config.device)
 
     return model
 
 
 def define_loss() -> [nn.MSELoss, nn.MSELoss]:
-    psnr_criterion = nn.MSELoss().to(device)
-    pixel_criterion = nn.MSELoss().to(device)
+    psnr_criterion = nn.MSELoss().to(config.device)
+    pixel_criterion = nn.MSELoss().to(config.device)
 
     return psnr_criterion, pixel_criterion
 
 
 def define_optimizer(model) -> optim.Adam:
-    optimizer = optim.Adam(model.parameters(), model_lr, model_betas)
+    optimizer = optim.Adam(model.parameters(), config.model_lr, config.model_betas)
 
     return optimizer
 
 
 def resume_checkpoint(model) -> None:
-    if resume:
-        if resume_weight != "":
+    if config.resume:
+        if config.resume_weight != "":
             # Get pretrained model state dict
-            pretrained_state_dict = torch.load(resume_weight)
+            pretrained_state_dict = torch.load(config.resume_weight)
             model_state_dict = model.state_dict()
             # Extract the fitted model weights
             new_state_dict = {k: v for k, v in pretrained_state_dict.items() if k in model_state_dict.items()}
             # Overwrite the pretrained model weights to the current model
             model_state_dict.update(new_state_dict)
-            model.load_state_dict(model_state_dict, strict=strict)
+            model.load_state_dict(model_state_dict, strict=config.strict)
 
 
 def train(model, train_dataloader, psnr_criterion, pixel_criterion, optimizer, epoch, scaler, writer) -> None:
@@ -150,8 +150,8 @@ def train(model, train_dataloader, psnr_criterion, pixel_criterion, optimizer, e
         # measure data loading time
         data_time.update(time.time() - end)
 
-        lr = lr.to(device, non_blocking=True)
-        hr = hr.to(device, non_blocking=True)
+        lr = lr.to(config.device, non_blocking=True)
+        hr = hr.to(config.device, non_blocking=True)
 
         # Initialize the generator gradient
         model.zero_grad()
@@ -178,7 +178,7 @@ def train(model, train_dataloader, psnr_criterion, pixel_criterion, optimizer, e
 
         # Writer Loss to file
         writer.add_scalar("Train/Loss", loss.item(), index + epoch * batches + 1)
-        if index % print_frequency == 0 and index != 0:
+        if index % config.print_frequency == 0 and index != 0:
             progress.display(index)
 
 
@@ -193,8 +193,8 @@ def validate(model, valid_dataloader, psnr_criterion, epoch, writer) -> float:
     with torch.no_grad():
         end = time.time()
         for index, (lr, hr) in enumerate(valid_dataloader):
-            lr = lr.to(device, non_blocking=True)
-            hr = hr.to(device, non_blocking=True)
+            lr = lr.to(config.device, non_blocking=True)
+            hr = hr.to(config.device, non_blocking=True)
 
             # Mixed precision
             with amp.autocast():
@@ -208,7 +208,7 @@ def validate(model, valid_dataloader, psnr_criterion, epoch, writer) -> float:
             batch_time.update(time.time() - end)
             end = time.time()
 
-            if index % print_frequency == 0:
+            if index % config.print_frequency == 0:
                 progress.display(index)
 
         writer.add_scalar("Valid/PSNR", psnres.avg, epoch + 1)

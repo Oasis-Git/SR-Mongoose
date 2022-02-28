@@ -15,7 +15,8 @@
 # ==============================================================================
 # File description: Realize the model definition function.
 # ==============================================================================
-import torch
+import sys
+sys.path.append("..")
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
@@ -29,6 +30,11 @@ __all__ = [
 ]
 
 
+def conv2d_approx(input_channel, output_channel, kernel, stride, padding, bias, sample_ratio):
+    return approx_Conv2d(in_channels=input_channel,out_channels=output_channel,
+                         kernel_size=kernel, stride=stride, padding=padding, bias=bias, sample_ratio= sample_ratio)
+
+
 class ResidualConvBlock(nn.Module):
     """Implements residual conv function.
 
@@ -39,10 +45,12 @@ class ResidualConvBlock(nn.Module):
     def __init__(self, channels: int) -> None:
         super(ResidualConvBlock, self).__init__()
         self.rcb = nn.Sequential(
-            nn.Conv2d(channels, channels, (3, 3), (1, 1), (1, 1), bias=False),
+            #nn.Conv2d(channels, channels, (3, 3), (1, 1), (1, 1), bias=False),
+            conv2d_approx(channels, channels, (3, 3), (1, 1), (1, 1), False, 0.9),
             nn.BatchNorm2d(channels),
             nn.PReLU(),
-            nn.Conv2d(channels, channels, (3, 3), (1, 1), (1, 1), bias=False),
+            #nn.Conv2d(channels, channels, (3, 3), (1, 1), (1, 1), bias=False),
+            conv2d_approx(channels, channels, (3, 3), (1, 1), (1, 1), False, 0.9),
             nn.BatchNorm2d(channels),
         )
 
@@ -60,7 +68,8 @@ class UpsampleBlock(nn.Module):
     def __init__(self, channels: int) -> None:
         super(UpsampleBlock, self).__init__()
         self.upsample_block = nn.Sequential(
-            nn.Conv2d(channels, channels * 4, (3, 3), (1, 1), (1, 1)),
+            #nn.Conv2d(channels, channels * 4, (3, 3), (1, 1), (1, 1)),
+            conv2d_approx(channels, channels * 4, (3, 3), (1, 1), (1, 1), True, 0.9),
             nn.PixelShuffle(2),
             nn.PReLU(),
         )
@@ -124,7 +133,8 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
         # First conv layer.
         self.conv_block1 = nn.Sequential(
-            nn.Conv2d(3, 64, (9, 9), (1, 1), (4, 4)),
+            #nn.Conv2d(3, 64, (9, 9), (1, 1), (4, 4)),
+            conv2d_approx(3, 64, (9, 9), (1, 1), (4, 4), True, 0.9),
             nn.PReLU(),
         )
 
@@ -136,7 +146,8 @@ class Generator(nn.Module):
 
         # Second conv layer.
         self.conv_block2 = nn.Sequential(
-            nn.Conv2d(64, 64, (3, 3), (1, 1), (1, 1), bias=False),
+            #nn.Conv2d(64, 64, (3, 3), (1, 1), (1, 1), bias=False),
+            conv2d_approx(64, 64, (3, 3), (1, 1), (1, 1), False, 0.9),
             nn.BatchNorm2d(64),
         )
 
@@ -147,7 +158,8 @@ class Generator(nn.Module):
         self.upsampling = nn.Sequential(*upsampling)
 
         # Output layer.
-        self.conv_block3 = nn.Conv2d(64, 3, (9, 9), (1, 1), (4, 4))
+        #self.conv_block3 = nn.Conv2d(64, 3, (9, 9), (1, 1), (4, 4))
+        self.conv_block3 = conv2d_approx(64, 3, (9, 9), (1, 1), (4, 4), True, 0.9)
 
         # Initialize neural network weights.
         self._initialize_weights()
