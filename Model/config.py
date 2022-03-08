@@ -18,7 +18,7 @@ from torch.backends import cudnn
 # Random seed to maintain reproducible results
 torch.manual_seed(0)
 # Use GPU for training by default
-device = torch.device("cuda", 0)
+device = torch.device("cuda", 1)
 # Turning on when the image size does not change during training can speed up training
 cudnn.benchmark = True
 # Image magnification factor
@@ -27,6 +27,8 @@ upscale_factor = 4
 mode = "train_srresnet"
 # Experiment name, easy to save weights and log files
 exp_name = "SRResNet_baseline"
+sample_ratio = 0.5
+const_ratio = 1.0
 
 if mode == "train_srresnet":
     # Dataset address

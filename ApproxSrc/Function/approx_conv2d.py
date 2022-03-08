@@ -1,6 +1,6 @@
 import torch
 from ..functional.approx_conv2d import approx_conv2d_func_bwd, approx_conv2d_func_wu, approx_conv2d_func_forward
-#import approx_conv2d
+import approx_conv2d
 
 class approx_conv2d_func(torch.autograd.Function):
     @staticmethod

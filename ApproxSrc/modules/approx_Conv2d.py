@@ -1,7 +1,7 @@
 import torch
 from torch.nn.modules.conv import _ConvNd, Conv2d
 from torch.nn.modules.utils import _single, _pair, _triple
-from ..Function.approx_conv2d import approx_conv2d_func
+#from ..Function.approx_conv2d import approx_conv2d_func
 from ..functional.approx_conv2d import approx_conv2d_func_forward
 
 class approx_Conv2d(_ConvNd):

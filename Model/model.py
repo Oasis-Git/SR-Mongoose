@@ -22,6 +22,7 @@ import torch.nn.functional as F
 import torchvision.models as models
 from torch import Tensor
 from ApproxSrc import *
+import config
 
 __all__ = [
     "ResidualConvBlock",
@@ -46,11 +47,11 @@ class ResidualConvBlock(nn.Module):
         super(ResidualConvBlock, self).__init__()
         self.rcb = nn.Sequential(
             #nn.Conv2d(channels, channels, (3, 3), (1, 1), (1, 1), bias=False),
-            conv2d_approx(channels, channels, (3, 3), (1, 1), (1, 1), False, 0.9),
+            conv2d_approx(channels, channels, (3, 3), (1, 1), (1, 1), False, config.sample_ratio),
             nn.BatchNorm2d(channels),
             nn.PReLU(),
             #nn.Conv2d(channels, channels, (3, 3), (1, 1), (1, 1), bias=False),
-            conv2d_approx(channels, channels, (3, 3), (1, 1), (1, 1), False, 0.9),
+            conv2d_approx(channels, channels, (3, 3), (1, 1), (1, 1), False, config.sample_ratio),
             nn.BatchNorm2d(channels),
         )
 
@@ -69,7 +70,7 @@ class UpsampleBlock(nn.Module):
         super(UpsampleBlock, self).__init__()
         self.upsample_block = nn.Sequential(
             #nn.Conv2d(channels, channels * 4, (3, 3), (1, 1), (1, 1)),
-            conv2d_approx(channels, channels * 4, (3, 3), (1, 1), (1, 1), True, 0.9),
+            conv2d_approx(channels, channels * 4, (3, 3), (1, 1), (1, 1), True, config.sample_ratio),
             nn.PixelShuffle(2),
             nn.PReLU(),
         )
@@ -134,7 +135,7 @@ class Generator(nn.Module):
         # First conv layer.
         self.conv_block1 = nn.Sequential(
             #nn.Conv2d(3, 64, (9, 9), (1, 1), (4, 4)),
-            conv2d_approx(3, 64, (9, 9), (1, 1), (4, 4), True, 0.9),
+            conv2d_approx(3, 64, (9, 9), (1, 1), (4, 4), True, config.const_ratio),
             nn.PReLU(),
         )
 
@@ -147,7 +148,7 @@ class Generator(nn.Module):
         # Second conv layer.
         self.conv_block2 = nn.Sequential(
             #nn.Conv2d(64, 64, (3, 3), (1, 1), (1, 1), bias=False),
-            conv2d_approx(64, 64, (3, 3), (1, 1), (1, 1), False, 0.9),
+            conv2d_approx(64, 64, (3, 3), (1, 1), (1, 1), False, config.sample_ratio),
             nn.BatchNorm2d(64),
         )
 
@@ -159,7 +160,7 @@ class Generator(nn.Module):
 
         # Output layer.
         #self.conv_block3 = nn.Conv2d(64, 3, (9, 9), (1, 1), (4, 4))
-        self.conv_block3 = conv2d_approx(64, 3, (9, 9), (1, 1), (4, 4), True, 0.9)
+        self.conv_block3 = conv2d_approx(64, 3, (9, 9), (1, 1), (4, 4), True, config.sample_ratio)
 
         # Initialize neural network weights.
         self._initialize_weights()
