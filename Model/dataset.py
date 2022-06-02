@@ -15,6 +15,9 @@
 import io
 import os
 
+import sys
+sys.path.append('../Model')
+
 import lmdb
 from PIL import Image
 from torch import Tensor
@@ -59,18 +62,21 @@ class ImageDataset(Dataset):
 
         # Transform image
         hr_image = self.hr_transforms(image)
-        lr_image = self.lr_transforms(hr_image)
+        lr_image = hr_image
 
         # Convert image data into Tensor stream format (PyTorch).
         # Note: The range of input and output is between [0, 1]
         lr_tensor = imgproc.image2tensor(lr_image, range_norm=False, half=False)
         hr_tensor = imgproc.image2tensor(hr_image, range_norm=False, half=False)
+        # lr_tensor = -lr_tensor
 
         return lr_tensor, hr_tensor
 
     def __len__(self) -> int:
         return len(self.image_file_names)
 
+    def getsize(self):
+        return len(self.image_file_names)
 
 class LMDBDataset(Dataset):
     """Load the data set as a data set in the form of LMDB.

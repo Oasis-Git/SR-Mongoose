@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" connectionConfig="{&quot;serverAliveInterval&quot;:300}" host="166.111.5.162" id="6ec8b9ae-17b6-491f-bd0b-3a0cd95ed8a7" port="23333" customName="skyworks" nameFormat="CUSTOM" username="ayw19" useOpenSSHConfig="true">
+        <option name="customName" value="skyworks" />
+      </sshConfig>
+    </configs>
+  </component>
+</project>

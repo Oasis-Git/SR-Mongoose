@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="skyworks" />
+  <component name="PublishConfigData" autoUpload="Always" serverName="skyworks">
+    <serverData>
+      <paths name="skyworks">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/sr/my" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="t">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/ayw19/sr/my" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
 </project>

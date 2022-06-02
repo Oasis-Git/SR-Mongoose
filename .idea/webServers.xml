@@ -3,11 +3,17 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="bf2a5332-2665-487c-bc21-e5a4b3caea75" name="skyworks" url="http://166.111.17.73">
-        <fileTransfer host="166.111.17.73" port="2222" accessType="SFTP" authAgent="true">
+        <fileTransfer rootFolder="/home/ayw19" accessType="SFTP" host="166.111.5.162" port="23333" sshConfigId="6ec8b9ae-17b6-491f-bd0b-3a0cd95ed8a7" sshConfig="skyworks">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
-          <option name="port" value="2222" />
+        </fileTransfer>
+      </webServer>
+      <webServer id="d9043b89-cdf8-4be4-a797-ac8241e2dc1c" name="t">
+        <fileTransfer accessType="SFTP" host="166.111.5.162" port="23333" sshConfigId="6ec8b9ae-17b6-491f-bd0b-3a0cd95ed8a7" sshConfig="skyworks">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
         </fileTransfer>
       </webServer>
     </option>
